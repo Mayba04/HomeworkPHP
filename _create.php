@@ -23,16 +23,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $description = $_POST['description'];
     echo "$name $image $description\n";
 
-    // Перевірка, чи файл був завантажений
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        // Читання вмісту файлу
         $imageContent = file_get_contents($_FILES['image']['tmp_name']);
 
-        // Підготовка SQL-запиту
         $sql = "INSERT INTO categories (name, image, description) VALUES (?, ?, ?)";
         $stmt = $pdo->prepare($sql);
 
-        // Вставка даних
         $stmt->execute([$name, $imageContent, $description]);
         header("Location: /");
         exit;
