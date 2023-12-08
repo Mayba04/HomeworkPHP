@@ -1,3 +1,6 @@
+<?php
+global $pdo;
+?>
 <!doctype html>
 <html lang="uk">
 <head>
@@ -8,24 +11,15 @@
     <title>Document</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
 </head>
-<?php include ("_header.php") ?>
-<div class="container">
+<body>
+<?php
+include("_header.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/config/connection_database.php");
+?>
 
+<div class="container">
     <h4 class="text-center">Categories</h4>
-    <?php
-    $n=2;
-    $list = array();
-    $list[0] = [
-        "id"=>1,
-        "name"=>"Laptop",
-        "image"=>"https://content1.rozetka.com.ua/goods/images/big/361687887.jpg"
-    ];
-    $list[1] = [
-        "id"=>2,
-        "name"=>"Phone",
-        "image"=>"https://content1.rozetka.com.ua/goods/images/big/364824496.jpg"
-    ];
-    ?>
+
     <table class="table">
         <thead>
         <tr>
@@ -36,29 +30,31 @@
         </tr>
         </thead>
         <tbody>
-        <?php for($i=0;$i<$n;$i++) { ?>
-            <tr>
-                <th scope="row"><?php echo $list[$i]["id"]; ?></th>
-                <td>
-                    <img src="<?php echo $list[$i]["image"]; ?>"
-                         height="75"
-                         alt="Photo">
-                </td>
-                <td>
-                    <?php echo $list[$i]["name"]; ?>
-                </td>
-                <td>
-                    <a href="#" class="btn btn-info">Review</a>
-                </td>
-            </tr>
-        <?php } ?>
+        <?php
+        // Select query
+        $sql = "SELECT id, name, image, description FROM categories";
+        $stmt = $pdo->query($sql);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($results as $row) {
+            if (isset($row["image"]) && $row["image"]) {
+                $base64Image = base64_encode($row["image"]);
+                $imageDataUri = "data:image/jpeg;base64," . $base64Image;
+            }
+            $editUrl = "_edit.php?id=" . $row["id"];
+            $deleteUrl = "_delete.php?id=" . $row["id"];
+            echo "<tr>
+            <th scope='row'>" . htmlspecialchars($row["id"], ENT_QUOTES, 'UTF-8') . "</th>
+            <td><img src='" . htmlspecialchars($imageDataUri, ENT_QUOTES, 'UTF-8') . "' height='75' alt='Photo'></td>
+            <td>" . htmlspecialchars($row["name"], ENT_QUOTES, 'UTF-8') . "</td>
+            <td><a href='" . htmlspecialchars($editUrl, ENT_QUOTES, 'UTF-8') . "' class='btn btn-primary'>Edit</a></td>
+            <td><a href='" . htmlspecialchars($deleteUrl, ENT_QUOTES, 'UTF-8') . "' class='btn btn-primary'>Delete</a></td>
+          </tr>";
+        }
+        ?>
         </tbody>
     </table>
-
 </div>
-
-<body>
-
 
 <script src="/js/bootstrap.bundle.min.js"></script>
 </body>
